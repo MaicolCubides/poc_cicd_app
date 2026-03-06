@@ -8,10 +8,61 @@ on:
       - main
       - develop
 jobs:
+
+  # LINTING (funciona para verificar la calidad del codigo)
+  # Evita que codigo mal formado llegue a producción
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      
+      - name: Install lint tools
+        run: |
+          pip install ruff black
+      
+      - name: Run Ruff Linter
+        run: |
+          ruff check .
+      
+      - name: Check formatting
+        run: |
+          black --check .
+
+  # SECUTIRY SCAN (Buscar vulnerabilidades en dependencias)
+  security:
+    runs-on: ubuntu-latest
+    needs: lint
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Install security scanner
+        run: |
+          pip install bandit
+      
+      - name: Run Bandit security scan 
+        run: |
+          bandit -r src
+  
+
   
   # Github crea una maquina virual Linux para ejecutar el pipeline
   test:
+    needs: security
     runs-on: ubuntu-latest
+
+    strategy:
+      # Probar verias versiones de Python
+      matrix:
+        python-version: ["3.10","3.11","3.12"]
 
     services:
       postgres:
@@ -33,15 +84,13 @@ jobs:
 
     steps:
       - name: checkout code
-
-        # Descar el codigo del repositorio
         uses: actions/checkout@v4
 
         # Instalamos Python
-      - name: Install Python
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: ${{ matrix.python-version }}
       
       # Instalamos dependencias
       - name: Install dependencies
@@ -49,6 +98,7 @@ jobs:
           pip install -r requirements.txt
           pip install pytest pytest-cov
 
+      # Wait Postgres
       - name: Wait for postgres
         run: |
           sleep 10
@@ -56,7 +106,15 @@ jobs:
       # Ejecutamos tests con cobertura
       - name: Run tests
         run: |
-          pytest --cov=src
+          pytest --cov=src --cov-report=xml
+      
+      # Save coverage (Guarda resultados del pipeline)
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage.xml
+
   
   # Solo corre si test pasa
   # Si los test fallan el buil no corre
@@ -74,3 +132,21 @@ jobs:
       - name: Build Docker image
         run: |
           docker build -t poc-cicd-app:ci .
+      
+      # TRIVY
+      # Trivy escanea vulnerabilidades del OS
+      # vulnerabilidades en dependencias
+      # vulnerabilidades en Docker images
+      - name: Scan Docker image with Trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: poc-cicd-app:ci
+          format: table
+          exit-code: 1
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+
+  ############################################
+  # NOTIFICATION
+  ############################################

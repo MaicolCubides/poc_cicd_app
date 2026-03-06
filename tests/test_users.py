@@ -3,7 +3,8 @@ from src.main import app
 
 client = TestClient(app)
 
-# Patron AAA
+# Patron AAA (Arrange, Act, Asserts)
+# Integration Test
 def test_create_user():
 
     payload = {

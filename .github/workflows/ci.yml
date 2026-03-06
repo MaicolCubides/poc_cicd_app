@@ -7,12 +7,30 @@ on:
     branches:
       - main
       - develop
-
 jobs:
   
   # Github crea una maquina virual Linux para ejecutar el pipeline
   test:
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: testdb
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U test"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+    env:
+      DATABASE_URL: postgresql://test:test@localhost:5432/testdb
+      ENV: test
+
     steps:
       - name: checkout code
 
@@ -30,6 +48,10 @@ jobs:
         run: |
           pip install -r requirements.txt
           pip install pytest pytest-cov
+
+      - name: Wait for postgres
+        run: |
+          sleep 10
       
       # Ejecutamos tests con cobertura
       - name: Run tests
@@ -40,7 +62,6 @@ jobs:
   # Si los test fallan el buil no corre
   build:
     needs: test
-
     runs-on: ubuntu-latest
 
     steps:
@@ -52,4 +73,4 @@ jobs:
         # Por el momento solo creara la imagen Docker dentro de la VM
       - name: Build Docker image
         run: |
-          docker build -t poc-cicd-app:ci
+          docker build -t poc-cicd-app:ci .

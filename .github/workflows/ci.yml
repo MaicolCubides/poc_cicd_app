@@ -1,0 +1,55 @@
+# Nombre del Pipeline
+name: CI Pipeline
+
+# Significa cuando alguien haga push a main o develop se ejecutara el pipeline
+on: 
+  push:
+    branches:
+      - main
+      - develop
+
+jobs:
+  
+  # Github crea una maquina virual Linux para ejecutar el pipeline
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout code
+
+        # Descar el codigo del repositorio
+        uses: actions/checkout@v4
+
+        # Instalamos Python
+      - name: Install Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      
+      # Instalamos dependencias
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install pytest pytest-cov
+      
+      # Ejecutamos tests con cobertura
+      - name: Run tests
+        run: |
+          pytest --cov=src
+  
+  # Solo corre si test pasa
+  # Si los test fallan el buil no corre
+  build:
+    needs: test
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+        # Construimos la imagen, esto se hara despues con Harbor
+        # Por el momento solo creara la imagen Docker dentro de la VM
+      - name: Build Docker image
+        run: |
+          docker build -t poc-cicd-app:ci

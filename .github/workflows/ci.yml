@@ -153,6 +153,7 @@ jobs:
         run: |
           echo "URL: ${{ secrets.HARBOR_URL }}"
           echo "USER: ${{ secrets.HARBOR_USER }}"
+          echo "TOKEN: ${{ secrets.HARBOR_TOKEN }}"
 
       - name: Checkout code
         uses: actions/checkout@v4

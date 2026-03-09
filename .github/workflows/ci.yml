@@ -12,7 +12,7 @@ jobs:
   # LINTING (funciona para verificar la calidad del codigo)
   # Evita que codigo mal formado llegue a producción
   lint:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
       - name: Checkout code
@@ -37,7 +37,7 @@ jobs:
 
   # SECUTIRY SCAN (Buscar vulnerabilidades en dependencias)
   security:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: lint
 
     steps:
@@ -57,7 +57,7 @@ jobs:
   # Github crea una maquina virual Linux para ejecutar el pipeline
   test:
     needs: security
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     strategy:
       # Probar verias versiones de Python
@@ -121,7 +121,7 @@ jobs:
   # Si los test fallan el buil no corre
   build:
     needs: test
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
       - name: Checkout code

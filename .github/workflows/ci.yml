@@ -148,12 +148,21 @@ jobs:
     runs-on: self-hosted
 
     steps:
+
+      - name: Debug Harbor variables
+        run: |
+          echo "URL: ${{ secrets.HARBOR_URL }}"
+          echo "USER: ${{ secrets.HARBOR_USER }}"
+
       - name: Checkout code
         uses: actions/checkout@v4
       
       - name: Login Harbor
         run: |
-          docker login ${{ secrets.HARBOR_URL }} -u ${{ secrets.HARBOR_USER }} -p ${{ secrets.HARBOR_TOKEN }}
+          echo "${{ secrets.HARBOR_TOKEN }}" | docker login \
+            ${{ secrets.HARBOR_URL }} \
+            -u "${{ secrets.HARBOR_USER }}" \
+            --password-stdin
       
       - name: Build Docker image
         run: |

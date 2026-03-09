@@ -12,4 +12,3 @@ app.include_router(user_router.router)
 app.include_router(health_router.router)
 
 Instrumentator().instrument(app).expose(app)
-

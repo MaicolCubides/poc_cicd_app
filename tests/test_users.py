@@ -3,14 +3,12 @@ from src.main import app
 
 client = TestClient(app)
 
+
 # Patron AAA (Arrange, Act, Asserts)
 # Integration Test
 def test_create_user():
 
-    payload = {
-        "name": "Juan",
-        "age": 30
-    }
+    payload = {"name": "Juan", "age": 30}
 
     response = client.post("/users/", json=payload)
 

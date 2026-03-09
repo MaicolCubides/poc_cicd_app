@@ -150,26 +150,56 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        
-        # Construimos la imagen, esto se hara despues con Harbor
-        # Por el momento solo creara la imagen Docker dentro de la VM
+      
+      - name: Login Harbor
+        run: |
+          docker login ${{ secrets.HARBOR_URL }} -u ${{ secrets.HARBOR_USER }} -p ${{ secrets.HARBOR_TOKEN }}
+      
       - name: Build Docker image
         run: |
-          docker build -t poc-cicd-app:ci .
+          docker build -t ${{ secrets.HARBOR_URL }}/poc/poc-cicd-app:${{ github.sha }} .
       
-      # TRIVY
-      # Trivy escanea vulnerabilidades del OS
-      # vulnerabilidades en dependencias
-      # vulnerabilidades en Docker images
+      - name: Push Docker image
+        run: |
+          docker push ${{ secrets.HARBOR_URL }}/poc/poc-cicd-app:${{ github.sha }}
+      
       - name: Scan Docker image with Trivy
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: poc-cicd-app:ci
+          image-ref: ${{ secrets.HARBOR_URL }}/poc/poc-cicd-app:${{ github.sha }}
           format: table
           exit-code: 1
           ignore-unfixed: true
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
+
+
+  #   needs: test
+  #   runs-on: self-hosted
+
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
+        
+  #       # Construimos la images
+  #       # Por el momento solo creara la imagen Docker dentro de la VM o host self-hosted runner
+  #     - name: Build Docker image
+  #       run: |
+  #         docker build -t poc-cicd-app:ci .
+      
+  #     # TRIVY
+  #     # Trivy escanea vulnerabilidades del OS
+  #     # vulnerabilidades en dependencias
+  #     # vulnerabilidades en Docker images
+  #     - name: Scan Docker image with Trivy
+  #       uses: aquasecurity/trivy-action@master
+  #       with:
+  #         image-ref: poc-cicd-app:ci
+  #         format: table
+  #         exit-code: 1
+  #         ignore-unfixed: true
+  #         vuln-type: 'os,library'
+  #         severity: 'CRITICAL,HIGH'
   ############################################
   # NOTIFICATION
   ############################################

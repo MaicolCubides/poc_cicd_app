@@ -14,7 +14,6 @@ COPY requirements.txt .
 # para no generar errores a futuro con el usuario temporal
 RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
 
-
 # ----------- Stage 2: runtime ----------- (Imagen final)
 # Creamos una nueva imagen limpia (no tiene nada de build)
 FROM python:3.12-slim

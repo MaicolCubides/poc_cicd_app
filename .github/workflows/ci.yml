@@ -149,21 +149,23 @@ jobs:
 
     env: 
       IMAGE_NAME: ${{ secrets.HARBOR_URL }}/poc/poc-cicd-app
-      VERSION: 1.0.${{ github.run_number }}
+      VERSION: 1.0.${{ github.run_number }} # Es un contador automatico del workflow
       COMMIT_SHA: ${{ github.sha }}
 
     steps:
 
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4 # Descagamos el repositorio del runner
       
+      # cON --password-stdin es para permitir enviar la contraseña por entrada estandar
       - name: Login Harbor
         run: |
           echo "${{ secrets.HARBOR_TOKEN }}" | docker login \
             ${{ secrets.HARBOR_URL }} \
             -u "${{ secrets.HARBOR_USER }}" \
-            --password-stdin
-      
+            --password-stdin 
+        
+        # Construimos la imagen usando el DockerFile (-t es para definir el tag inicial de la imagen)
       - name: Build Docker image
         run: |
           docker build -t $IMAGE_NAME:$VERSION .
@@ -185,9 +187,9 @@ jobs:
           image-ref: ${{ secrets.HARBOR_URL }}/poc/poc-cicd-app:${{ env.VERSION }}
           format: table
           exit-code: 1
-          ignore-unfixed: true
-          vuln-type: 'os,library'
-          severity: 'CRITICAL,HIGH'
+          ignore-unfixed: true # Ignora vulnerabilidades con parche disponible
+          vuln-type: 'os,library' # Escane paquetes del sistema y dependencias del lenguaje
+          severity: 'CRITICAL,HIGH' # Solo falla cuando hay vulnerabilidades claves
 
 
   #   needs: test

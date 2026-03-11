@@ -147,13 +147,12 @@ jobs:
     needs: test
     runs-on: self-hosted
 
-    steps:
+    env: 
+      IMAGE_NAME: ${{ secrets.HARBOR_URL }}/poc/poc-cicd-app
+      VERSION: 1.0.${{ github.run_number }}
+      COMMIT_SHA: ${{ github.sha }}
 
-      - name: Debug Harbor variables
-        run: |
-          echo "URL: ${{ secrets.HARBOR_URL }}"
-          echo "USER: ${{ secrets.HARBOR_USER }}"
-          echo "TOKEN: ${{ secrets.HARBOR_TOKEN }}"
+    steps:
 
       - name: Checkout code
         uses: actions/checkout@v4
@@ -167,16 +166,23 @@ jobs:
       
       - name: Build Docker image
         run: |
-          docker build -t ${{ secrets.HARBOR_URL }}/poc/poc-cicd-app:${{ github.sha }} .
+          docker build -t $IMAGE_NAME:$VERSION .
+
+      - name: Tag images
+        run: |
+          docker tag $IMAGE_NAME:$VERSION $IMAGE_NAME:latest
+          docker tag $IMAGE_NAME:$VERSION $IMAGE_NAME:$COMMIT_SHA
       
       - name: Push Docker image
         run: |
-          docker push ${{ secrets.HARBOR_URL }}/poc/poc-cicd-app:${{ github.sha }}
+          docker push $IMAGE_NAME:$VERSION
+          docker push $IMAGE_NAME:latest
+          docker push $IMAGE_NAME:$COMMIT_SHA
       
       - name: Scan Docker image with Trivy
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: ${{ secrets.HARBOR_URL }}/poc/poc-cicd-app:${{ github.sha }}
+          image-ref: ${{ secrets.HARBOR_URL }}/poc/poc-cicd-app:${{ env.VERSION }}
           format: table
           exit-code: 1
           ignore-unfixed: true

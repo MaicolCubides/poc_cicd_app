@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3
+
+# Virtual environments
+venv/
+.env/
+.env.*
+
+# Environment files
+.env
+.env.local
+.env.test
+.env.production
+
+# Secrets
+secrets/
+*.key
+*.pem
+*.crt
+
+# Logs
+logs/
+*.log
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+.coverage
+htmlcov/
+
+# Docker
+docker-data/
+
+# Kubernetes
+*.kubeconfig

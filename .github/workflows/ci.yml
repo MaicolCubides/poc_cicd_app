@@ -183,7 +183,6 @@ jobs:
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
 
-
   #   needs: test
   #   runs-on: self-hosted
 

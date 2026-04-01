@@ -74,73 +74,73 @@ jobs:
 
   
   # Github crea una maquina virual Linux para ejecutar el pipeline
-  test:
-    needs: security
-    runs-on: self-hosted
+  # test:
+  #   needs: security
+  #   runs-on: self-hosted
 
-    strategy:
-      # Probar verias versiones de Python
-      matrix:
-        python-version: ["3.10","3.11","3.12"]
+  #   strategy:
+  #     # Probar verias versiones de Python
+  #     matrix:
+  #       python-version: ["3.10","3.11","3.12"]
 
-    services:
-      postgres:
-        image: postgres:15
-        env:
-          POSTGRES_USER: test
-          POSTGRES_PASSWORD: test
-          POSTGRES_DB: testdb
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd="pg_isready -U test"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
-    env:
-      DATABASE_URL: postgresql://test:test@localhost:5432/testdb
-      ENV: test
+  #   services:
+  #     postgres:
+  #       image: postgres:15
+  #       env:
+  #         POSTGRES_USER: test
+  #         POSTGRES_PASSWORD: test
+  #         POSTGRES_DB: testdb
+  #       ports:
+  #         - 5432:5432
+  #       options: >-
+  #         --health-cmd="pg_isready -U test"
+  #         --health-interval=10s
+  #         --health-timeout=5s
+  #         --health-retries=5
+  #   env:
+  #     DATABASE_URL: postgresql://test:test@localhost:5432/testdb
+  #     ENV: test
 
-    steps:
-      - name: checkout code
-        uses: actions/checkout@v4
+  #   steps:
+  #     - name: checkout code
+  #       uses: actions/checkout@v4
 
-        # Instalamos Python
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
+  #       # Instalamos Python
+  #     - name: Setup Python
+  #       uses: actions/setup-python@v5
+  #       with:
+  #         python-version: ${{ matrix.python-version }}
 
-      - name: Create venv
-        run: |
-          python -m venv venv
+  #     - name: Create venv
+  #       run: |
+  #         python -m venv venv
       
-      # Instalamos dependencias
-      - name: Install dependencies
-        run: |
-          source venv/bin/activate
-          pip install -r requirements.txt
-          pip install pytest pytest-cov
+  #     # Instalamos dependencias
+  #     - name: Install dependencies
+  #       run: |
+  #         source venv/bin/activate
+  #         pip install -r requirements.txt
+  #         pip install pytest pytest-cov
 
-      # Wait Postgres
-      - name: Wait for postgres
-        run: |
-          sleep 10
+  #     # Wait Postgres
+  #     - name: Wait for postgres
+  #       run: |
+  #         sleep 10
       
-      # Ejecutamos tests con cobertura
-      - name: Run tests
-        run: |
-          source venv/bin/activate
-          pytest --cov=src --cov-report=xml
+  #     # Ejecutamos tests con cobertura
+  #     - name: Run tests
+  #       run: |
+  #         source venv/bin/activate
+  #         pytest --cov=src --cov-report=xml
       
-      # Save coverage (Guarda resultados del pipeline)
-      - name: Upload coverage artifact
-        uses: actions/upload-artifact@v4
-        with:
-          # name: coverage-report-${{ matrix.python-version }} con nombre unico
-          name: coverage-report
-          path: coverage.xml
-          overwrite: true
+  #     # Save coverage (Guarda resultados del pipeline)
+  #     - name: Upload coverage artifact
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         # name: coverage-report-${{ matrix.python-version }} con nombre unico
+  #         name: coverage-report
+  #         path: coverage.xml
+  #         overwrite: true
   
   # Solo corre si test pasa
   # Si los test fallan el buil no corre

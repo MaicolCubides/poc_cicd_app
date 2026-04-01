@@ -43,3 +43,6 @@ docker-data/
 
 # Kubernetes
 *.kubeconfig
+
+k8s/secret.yaml
+.env

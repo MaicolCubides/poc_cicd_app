@@ -7,6 +7,6 @@ from src.core.database import Base
 # id = Column("userid", Integer, primary_key=True)
 class User(Base):
     __tablename__ = "users"
-    userid = Column(Integer, primary_key=True, index=True)
+    userid = Column(Integer, primary_key = True, index = True)
     name = Column(String(100), nullable=False)
     age = Column(Integer, nullable=False)

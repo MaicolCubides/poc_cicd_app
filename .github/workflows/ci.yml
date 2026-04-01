@@ -13,6 +13,7 @@ jobs:
   # Evita que codigo mal formado llegue a producción
   lint:
     runs-on: self-hosted
+    # runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code

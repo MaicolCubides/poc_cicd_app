@@ -177,12 +177,6 @@ jobs:
           docker tag $IMAGE_NAME:$VERSION $IMAGE_NAME:latest
           docker tag $IMAGE_NAME:$VERSION $IMAGE_NAME:$COMMIT_SHA
       
-      - name: Push Docker image
-        run: |
-          docker push $IMAGE_NAME:$VERSION
-          docker push $IMAGE_NAME:latest
-          docker push $IMAGE_NAME:$COMMIT_SHA
-      
       - name: Scan Docker image with Trivy
         uses: aquasecurity/trivy-action@master
         with:
@@ -191,7 +185,15 @@ jobs:
           exit-code: 1
           ignore-unfixed: true # Ignora vulnerabilidades con parche disponible
           vuln-type: 'os,library' # Escane paquetes del sistema y dependencias del lenguaje
-          severity: 'CRITICAL,HIGH' # Solo falla cuando hay vulnerabilidades clav es
+          severity: 'CRITICAL,HIGH' # Solo falla cuando hay vulnerabilidades claves
+
+      - name: Push Docker image
+        if: success() # Solo guardamos la imagen si fue exitoso el scaneo con trivy
+        run: |
+          docker push $IMAGE_NAME:$VERSION
+          docker push $IMAGE_NAME:latest
+          docker push $IMAGE_NAME:$COMMIT_SHA
+      
 
 
   #   needs: test

@@ -5,6 +5,8 @@ FROM python:3.12-slim as builder
 # Directorio de trabajo dentro del contenedor
 WORKDIR /app
 
+# 
+
 # Copiamos el archivo del proyecto al contenedor
 COPY requirements.txt .
 

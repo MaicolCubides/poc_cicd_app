@@ -191,7 +191,7 @@ jobs:
           exit-code: 1
           ignore-unfixed: true # Ignora vulnerabilidades con parche disponible
           vuln-type: 'os,library' # Escane paquetes del sistema y dependencias del lenguaje
-          severity: 'CRITICAL,HIGH' # Solo falla cuando hay vulnerabilidades claves
+          severity: 'CRITICAL,HIGH' # Solo falla cuando hay vulnerabilidades clave s
 
 
   #   needs: test

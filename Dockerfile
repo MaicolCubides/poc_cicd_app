@@ -23,6 +23,10 @@ FROM python:3.12-slim
 # Igual que antes, definimos el directorio de trabajo
 WORKDIR /app
 
+# Actualizamos paquetes del sistema y limpiamos cache para no inflar imagen
+RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-recommends curl \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
 # copiar dependencias del builder
 # Copiamos solo las dependencias instaladas desde la etapa builder
 COPY --from=builder /install /usr/local

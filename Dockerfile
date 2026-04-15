@@ -5,8 +5,6 @@ FROM python:3.12-slim as builder
 # Directorio de trabajo dentro del contenedor
 WORKDIR /app
 
-# 
-
 # Copiamos el archivo del proyecto al contenedor
 COPY requirements.txt .
 
@@ -24,6 +22,10 @@ FROM python:3.12-slim
 WORKDIR /app
 
 # Actualizamos paquetes del sistema y limpiamos cache para no inflar imagen
+# apt-get update: solo actualizamos, upgrade solucionamos vulnerabilidades de seguridad
+# -y: confirmamos automáticamente la instalacion, install: instalamos nuevos paquetes
+# con --no-install.... Instalamos lo estrictramente necesario, clean: borramo archivos temporales
+# con rm -rf /var... Borramos lista de paquetes para que no pesen en la imagen final
 RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-recommends curl \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 

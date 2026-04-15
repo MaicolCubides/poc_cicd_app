@@ -2,6 +2,11 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: poc-app-config
-  namespace: staging
+  namespace: production
 data:
-  
+  APP_ENV: "production"
+  APP_PORT: "8000"
+  # DNS interno de kubernetes para llegar a PostgreSQL desde otro namespace
+  DB_HOST: "postgres.database.svc.cluster.local"
+  DB_PORT: "5432"
+  DB_NAME: "appdb"

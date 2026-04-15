@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: poc-app
+  namespace: production
+  labels:
+    app: poc-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: poc-app
+  template:
+    metadata:
+      labels:
+        app: poc-app
+    spec:
+      containers:
+      - name: poc-app
+        # Imagen que viene de Harbor después del pipeline CI
+        # El tag :latest se actualiza en cada push a main
+        image: 192.168.11.47:80/poc/poc-cicd-app:latest
+        imagePullPolicy: Always
+        ports:
+          - containerPort: 8000
+        
+        # Inyectar variables NOsensibles desde ConfigMap
+        envFrom:
+        - configMapRef:
+            name: poc-app-config
+        # Inyectar variables sensibles desde Secret
+        - secretRef:
+            name: poc-app-secret
+        
+        # readinessProbe: Kubernetes solo envía tráfico cuando cuando esto responde OK
+
+        # Si falla, el pod se saca del servicio temporalmente (no recibe requests)
+
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          failureThreshold: 3
+        
+        # livenessProbe: Si falla, Kubernetes reinicia el pod
+        # Detecta cuando la app está viva pero colgada
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 15
+          failureThreshold: 5
+        
+        # Límites de recursos - buena práctica siempre definirlos
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+      
+      # Credenciales para que k8s pueda hacer pull de Harbor
+      imagePullSecrets:
+      - name: harbor-registry-secret

@@ -11,5 +11,5 @@ spec:
     app: poc-app
   ports:
     - port: 8000
-    targetPort: 8000
-    protocol: TCP
+      targetPort: 8000
+      protocol: TCP
